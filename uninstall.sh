@@ -20,7 +20,7 @@ CARGO_BIN="$HOME/.cargo/bin"
 BACKUP_DIR="$HOME/.terminal_ide_backup_$(date +%Y%m%d_%H%M%S)"
 
 # Default tools to uninstall
-DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,nushell,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship,aider"
+DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship,aider"
 
 # Parse command line arguments
 TOOLS="$DEFAULT_TOOLS"
@@ -195,7 +195,7 @@ remove_cargo_tools() {
         return 0
     fi
     
-    local cargo_tools=("lsp-ai" "gitui" "ruff" "btop" "yazi" "ya" "ripgrep" "rg" "bat" "hyperfine" "delta" "fd" "eza" "dust" "nu" "helix" "aider")
+    local cargo_tools=("lsp-ai" "gitui" "ruff" "btop" "yazi" "ya" "ripgrep" "rg" "bat" "hyperfine" "delta" "fd" "eza" "dust" "helix" "aider")
     
     for tool in "${cargo_tools[@]}"; do
         if [[ "$TOOLS" == *"${tool%/*}"* ]] || [[ "$TOOLS" == *"$tool"* ]]; then
@@ -214,11 +214,6 @@ remove_cargo_tools() {
     if [[ "$TOOLS" == *"helix"* ]]; then
         safe_remove "$CARGO_BIN/hx" "file"
         safe_remove "$INSTALL_DIR/hx" "file"
-    fi
-    
-    if [[ "$TOOLS" == *"nushell"* ]]; then
-        safe_remove "$CARGO_BIN/nu" "file"
-        safe_remove "$INSTALL_DIR/nu" "file"
     fi
     
     if [[ "$TOOLS" == *"yazi"* ]]; then
@@ -242,7 +237,7 @@ remove_homebrew_tools() {
     
     log_info "Removing Homebrew-installed tools..."
     
-    local brew_tools=("helix" "zellij" "gitui" "ruff" "btop" "yazi" "ripgrep" "bat" "hyperfine" "git-delta" "fd" "eza" "du-dust" "fish" "nushell" "starship" "aider")
+    local brew_tools=("helix" "zellij" "gitui" "ruff" "btop" "yazi" "ripgrep" "bat" "hyperfine" "git-delta" "fd" "eza" "du-dust" "fish" "starship" "aider")
     
     for tool in "${brew_tools[@]}"; do
         # Map tool names to package names
@@ -275,9 +270,6 @@ remove_local_binaries() {
         case "$tool" in
             "helix")
                 binary_names=("hx" "helix")
-                ;;
-            "nushell")
-                binary_names=("nu")
                 ;;
             "yazi")
                 binary_names=("yazi" "ya")
@@ -408,7 +400,6 @@ verify_removal() {
         local binary_names=("$tool")
         case "$tool" in
             "helix") binary_names=("hx") ;;
-            "nushell") binary_names=("nu") ;;
             "yazi") binary_names=("yazi" "ya") ;;
             "ripgrep") binary_names=("rg") ;;
             "aider") binary_names=("aider") ;;

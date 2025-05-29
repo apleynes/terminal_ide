@@ -20,7 +20,7 @@ CONFIG_DIR="$HOME/.config"
 CARGO_BIN="$HOME/.cargo/bin"
 
 # Default tools to test
-DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,nushell,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship"
+DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship,aider"
 
 # Test options
 TOOLS="$DEFAULT_TOOLS"
@@ -189,9 +189,6 @@ get_command_version() {
         "fish")
             version=$($cmd --version 2>/dev/null | head -1 || echo "unknown")
             ;;
-        "nu"|"nushell")
-            version=$($cmd --version 2>/dev/null | head -1 || echo "unknown")
-            ;;
         "starship")
             version=$($cmd --version 2>/dev/null | head -1 || echo "unknown")
             ;;
@@ -214,9 +211,6 @@ test_tool_installation() {
     case "$tool" in
         "helix")
             binary_names=("hx")
-            ;;
-        "nushell")
-            binary_names=("nu")
             ;;
         "yazi")
             binary_names=("yazi")
@@ -417,7 +411,6 @@ test_functionality() {
             # Generic test for other tools
             local binary="$tool"
             case "$tool" in
-                "nushell") binary="nu" ;;
                 "dust") binary="dust" ;;
             esac
             

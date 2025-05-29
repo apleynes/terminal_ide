@@ -898,27 +898,6 @@ install_shells() {
             log_success "Fish shell installed"
         fi
     fi
-    
-    # Nushell
-    if [[ "$TOOLS" == *"nushell"* ]]; then
-        if command_exists nu && [[ "$FORCE_INSTALL" == "false" ]]; then
-            log_info "Nushell already installed"
-        else
-            log_info "Installing Nushell..."
-            
-            if [[ "$(detect_os)" == "macos" ]] && command_exists brew; then
-                brew install nushell
-            else
-                if ! command_exists cargo; then
-                    install_rust
-                fi
-                cargo install nu
-                ln -sf "$HOME/.cargo/bin/nu" "$INSTALL_DIR/"
-            fi
-            
-            log_success "Nushell installed"
-        fi
-    fi
 }
 
 # Install Starship prompt
@@ -1434,7 +1413,7 @@ main() {
             "ruff")
                 install_ruff
                 ;;
-            "fish"|"nushell")
+            "fish")
                 install_shells
                 ;;
             "starship")

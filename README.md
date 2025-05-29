@@ -25,13 +25,13 @@ cd terminal_ide
 - **[LSP-AI](https://github.com/SilasMarvin/lsp-ai)** - AI-powered language server
 - **[GitUI](https://github.com/extrawurst/gitui)** - Terminal-based Git interface
 - **[Ruff](https://github.com/astral-sh/ruff)** - Fast Python linter and formatter
+- **[Aider](https://aider.chat/)** - AI pair programming in your terminal
 
 ### Modern Command Line Tools
 
 - **[btop](https://github.com/aristocratos/btop)** - Resource monitor and system information
 - **[yazi](https://github.com/sxyazi/yazi)** - Terminal file manager
 - **[fish](https://fishshell.com/)** - Smart and user-friendly shell
-- **[nushell](https://www.nushell.sh/)** - Data-driven shell
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)** - Fast search tool
 - **[bat](https://github.com/sharkdp/bat)** - Cat clone with syntax highlighting
 - **[hyperfine](https://github.com/sharkdp/hyperfine)** - Command-line benchmarking tool
@@ -39,6 +39,7 @@ cd terminal_ide
 - **[fd](https://github.com/sharkdp/fd)** - Simple, fast alternative to find
 - **[eza](https://github.com/eza-community/eza)** - Modern replacement for ls
 - **[du-dust](https://github.com/bootandy/dust)** - Intuitive version of du
+- **[starship](https://starship.rs/)** - Cross-shell prompt
 
 ### System Requirements
 
@@ -73,8 +74,10 @@ chmod +x install.sh
 ```bash
 git clone https://github.com/YOUR_USERNAME/terminal_ide.git
 cd terminal_ide
-./install.sh --tools="helix,zellij,gitui" --skip-config
+./install.sh --tools="helix,zellij,gitui,aider" --skip-config
 ```
+
+**Available tools:** `helix`, `zellij`, `lsp-ai`, `gitui`, `ruff`, `btop`, `yazi`, `fish`, `ripgrep`, `bat`, `hyperfine`, `delta`, `fd`, `eza`, `dust`, `starship`, `aider`
 
 ## Configuration
 
@@ -195,6 +198,23 @@ Terminal-based Git interface.
 - Interactive rebase
 - Stash management
 - Branch visualization
+
+### Aider AI Pair Programming
+
+AI-powered coding assistant that works directly in your terminal.
+
+**Key Features:**
+- Chat with GPT-4/Claude about your codebase
+- Make edits to multiple files at once
+- Automatic git integration
+- Context-aware suggestions
+
+**Basic Usage:**
+```bash
+aider                # Start chat in current directory
+aider file1.py file2.py  # Add specific files to chat
+aider --model gpt-4  # Use specific model
+```
 
 ### Modern Shell Setup
 
