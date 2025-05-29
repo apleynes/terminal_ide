@@ -19,7 +19,7 @@ CONFIG_DIR="$HOME/.config"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Default tools to install
-DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,nushell,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship,aider"
+DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship,aider"
 
 # Parse command line arguments
 TOOLS="$DEFAULT_TOOLS"
@@ -134,9 +134,9 @@ get_latest_github_release() {
     local version=""
     
     if command_exists curl; then
-        version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -o '"tag_name": *"[^"]*"' | grep -o '[^"]*$' | sed 's/^v//')
+        version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -o '"tag_name": *"[^"]*' | grep -o '[^"]*$' | sed 's/^v//')
     elif command_exists wget; then
-        version=$(wget -qO- "https://api.github.com/repos/$repo/releases/latest" | grep -o '"tag_name": *"[^"]*"' | grep -o '[^"]*$' | sed 's/^v//')
+        version=$(wget -qO- "https://api.github.com/repos/$repo/releases/latest" | grep -o '"tag_name": *"[^"]*' | grep -o '[^"]*$' | sed 's/^v//')
     fi
     
     if [[ -z "$version" ]]; then
@@ -173,6 +173,8 @@ download_and_extract() {
         tar -xJf "$temp_file" -C "$extract_dir"
     elif [[ "$url" == *.zip ]]; then
         unzip -q "$temp_file" -d "$extract_dir"
+    elif [[ "$url" == *.tbz ]]; then
+        tar -xf "$temp_file" -C "$extract_dir"
     else
         log_error "Unsupported archive format: $url"
         rm -f "$temp_file"
@@ -547,15 +549,15 @@ install_ruff() {
         local url=""
         if [[ "$os" == "linux" ]]; then
             if [[ "$arch" == "x86_64" ]]; then
-                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-x86_64-unknown-linux-gnu.tar.gz"
+                url="https://github.com/astral-sh/ruff/releases/download/${version}/ruff-x86_64-unknown-linux-gnu.tar.gz"
             elif [[ "$arch" == "aarch64" ]]; then
-                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-aarch64-unknown-linux-gnu.tar.gz"
+                url="https://github.com/astral-sh/ruff/releases/download/${version}/ruff-aarch64-unknown-linux-gnu.tar.gz"
             fi
         elif [[ "$os" == "macos" ]]; then
             if [[ "$arch" == "x86_64" ]]; then
-                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-x86_64-apple-darwin.tar.gz"
+                url="https://github.com/astral-sh/ruff/releases/download/${version}/ruff-x86_64-apple-darwin.tar.gz"
             elif [[ "$arch" == "aarch64" ]]; then
-                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-aarch64-apple-darwin.tar.gz"
+                url="https://github.com/astral-sh/ruff/releases/download/${version}/ruff-aarch64-apple-darwin.tar.gz"
             fi
         fi
         
@@ -638,15 +640,15 @@ install_modern_tools() {
                     if [[ -n "$version" ]]; then
                         if [[ "$os" == "linux" ]]; then
                             if [[ "$arch" == "x86_64" ]]; then
-                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-x86_64-unknown-linux-gnu.tar.gz"
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-x86_64-unknown-linux-gnu.zip"
                             elif [[ "$arch" == "aarch64" ]]; then
-                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-aarch64-unknown-linux-gnu.tar.gz"
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-aarch64-unknown-linux-gnu.zip"
                             fi
                         elif [[ "$os" == "macos" ]]; then
                             if [[ "$arch" == "x86_64" ]]; then
-                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-x86_64-apple-darwin.tar.gz"
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-x86_64-apple-darwin.zip"
                             elif [[ "$arch" == "aarch64" ]]; then
-                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-aarch64-apple-darwin.tar.gz"
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-aarch64-apple-darwin.zip"
                             fi
                         fi
                     else
