@@ -589,6 +589,11 @@ install_ruff() {
 
 # Install modern CLI tools
 install_modern_tools() {
+    # Mapping for tools with different binary names
+    local -A tool_binary_map=(
+        ["ripgrep"]="rg"
+    )
+    
     local tools=("btop" "yazi" "ripgrep" "bat" "hyperfine" "delta" "fd" "eza" "dust")
     
     for tool in "${tools[@]}"; do
@@ -596,7 +601,10 @@ install_modern_tools() {
             continue
         fi
         
-        if command_exists "$tool" && [[ "$FORCE_INSTALL" == "false" ]]; then
+        # Use mapped binary name if exists, otherwise use tool name
+        local binary_name="${tool_binary_map[$tool]:-$tool}"
+        
+        if command_exists "$binary_name" && [[ "$FORCE_INSTALL" == "false" ]]; then
             log_info "$tool already installed"
             continue
         fi
