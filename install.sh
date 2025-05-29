@@ -1348,6 +1348,9 @@ verify_installation() {
             "lsp-ai")
                 command_exists lsp-ai || failed_tools+=("lsp-ai")
                 ;;
+            "ripgrep")
+                command_exists rg || failed_tools+=("ripgrep")
+                ;;
             *)
                 command_exists "$tool" || failed_tools+=("$tool")
                 ;;
