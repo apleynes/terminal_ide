@@ -280,14 +280,21 @@ install_with_package_manager() {
             fi
             ;;
         linux)
-            # Try common package managers
+            # Try common package managers without sudo first
             if command_exists apt-get; then
                 apt-get update >/dev/null 2>&1 || true
-                apt-get install -y "$tool" >/dev/null 2>&1 || return 1
+                apt-get install -y "$tool" >/dev/null 2>&1 && return 0
+                # If user install fails, try with sudo
+                sudo apt-get update >/dev/null 2>&1 || true
+                sudo apt-get install -y "$tool" >/dev/null 2>&1 || return 1
             elif command_exists dnf; then
-                dnf install -y "$tool" >/dev/null 2>&1 || return 1
+                dnf install -y "$tool" >/dev/null 2>&1 && return 0
+                # If user install fails, try with sudo
+                sudo dnf install -y "$tool" >/dev/null 2>&1 || return 1
             elif command_exists pacman; then
-                pacman -S --noconfirm "$tool" >/dev/null 2>&1 || return 1
+                pacman -S --noconfirm "$tool" >/dev/null 2>&1 && return 0
+                # If user install fails, try with sudo
+                sudo pacman -S --noconfirm "$tool" >/dev/null 2>&1 || return 1
             else
                 return 1
             fi
