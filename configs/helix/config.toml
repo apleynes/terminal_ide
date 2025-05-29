@@ -1,0 +1,82 @@
+theme = "onedark"
+
+[editor]
+line-number = "relative"
+mouse = true
+completion-trigger-len = 2
+auto-completion = true
+auto-format = true
+auto-save = true
+idle-timeout = 50
+bufferline = "multiple"
+color-modes = true
+cursorline = true
+completion-replace = true
+auto-pairs = true
+
+[editor.statusline]
+left = ["mode", "spinner", "file-name", "file-modification-indicator"]
+center = []
+right = ["diagnostics", "selections", "register", "position", "file-encoding", "file-line-ending", "file-type"]
+separator = "│"
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
+
+[editor.lsp]
+enable = true
+display-messages = true
+auto-signature-help = true
+display-inlay-hints = true
+display-signature-help-docs = true
+snippets = true
+goto-reference-include-declaration = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = false
+follow-symlinks = true
+deduplicate-links = true
+parents = true
+ignore = true
+git-ignore = true
+git-global = true
+git-exclude = true
+max-depth = 25
+
+[editor.auto-save]
+focus-lost = true
+after-delay.enable = true
+after-delay.timeout = 3000
+
+[editor.search]
+smart-case = true
+wrap-around = true
+
+[editor.whitespace]
+render = "selection"
+
+[editor.indent-guides]
+render = true
+character = "╎"
+skip-levels = 1
+
+[keys.normal]
+space = { f = "file_picker", b = "buffer_picker", "/" = "global_search", "?" = "command_palette" }
+";" = "command_mode"
+":" = "command_palette"
+g = { a = "code_action", d = "goto_definition", D = "goto_declaration", r = "goto_references", i = "goto_implementation", t = "goto_type_definition", h = "select_references_to_symbol_under_cursor" }
+"]" = { d = "goto_next_diag", D = "goto_last_diag", f = "goto_next_function", c = "goto_next_class", a = "goto_next_parameter", o = "goto_next_comment", t = "goto_next_test", p = "goto_next_paragraph" }
+"[" = { d = "goto_prev_diag", D = "goto_first_diag", f = "goto_prev_function", c = "goto_prev_class", a = "goto_prev_parameter", o = "goto_prev_comment", t = "goto_prev_test", p = "goto_prev_paragraph" }
+"=" = "format_selections"
+
+[keys.insert]
+"C-space" = "completion"
+"C-r" = "insert_register"
+
+[keys.select]
+"=" = "format_selections" 
