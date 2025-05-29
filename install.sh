@@ -285,15 +285,18 @@ install_with_package_manager() {
                 apt-get update >/dev/null 2>&1 || true
                 apt-get install -y "$tool" >/dev/null 2>&1 && return 0
                 # If user install fails, try with sudo
+                echo "Need sudo permissions to install:"
                 sudo apt-get update >/dev/null 2>&1 || true
                 sudo apt-get install -y "$tool" >/dev/null 2>&1 || return 1
             elif command_exists dnf; then
                 dnf install -y "$tool" >/dev/null 2>&1 && return 0
                 # If user install fails, try with sudo
+                echo "Need sudo permissions to install:"
                 sudo dnf install -y "$tool" >/dev/null 2>&1 || return 1
             elif command_exists pacman; then
                 pacman -S --noconfirm "$tool" >/dev/null 2>&1 && return 0
                 # If user install fails, try with sudo
+                echo "Need sudo permissions to install:"
                 sudo pacman -S --noconfirm "$tool" >/dev/null 2>&1 || return 1
             else
                 return 1
