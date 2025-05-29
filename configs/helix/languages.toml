@@ -2,44 +2,44 @@
 
 [[language]]
 name = "python"
-scope = "source.python"
-injection-regex = "python"
-file-types = ["py", "pyi", "py3", "pyw", "ptl", "rpy", "cpy", "ipy", "pyt", "pyx", "pxd", "pxi"]
-comment-token = "#"
+# scope = "source.python"
+# injection-regex = "python"
+# file-types = ["py", "pyi", "py3", "pyw", "ptl", "rpy", "cpy", "ipy", "pyt", "pyx", "pxd", "pxi"]
+# comment-token = "#"
 language-servers = ["ruff", "pylsp", "lsp-ai"]
 auto-format = true
 formatter = { command = "ruff", args = ["format", "--stdin-filename", "file.py", "-"] }
 
 [[language]]
 name = "rust"
-scope = "source.rust"
-injection-regex = "rust"
+# scope = "source.rust"
+# injection-regex = "rust"
 file-types = ["rs"]
-roots = ["Cargo.toml", "Cargo.lock"]
+# roots = ["Cargo.toml", "Cargo.lock"]
 comment-token = "//"
 language-servers = ["rust-analyzer", "lsp-ai"]
 auto-format = true
-formatter = { command = "rustfmt", args = ["--edition", "2021"] }
+formatter = { command = "rustfmt" } #, args = ["--edition", "2021"] }
 
-[[language]]
-name = "javascript"
-scope = "source.js"
-injection-regex = "(js|javascript)"
-language-id = "javascript"
-file-types = ["js", "mjs", "cjs", "jsx"]
-comment-token = "//"
-language-servers = ["typescript-language-server", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "javascript"
+# scope = "source.js"
+# injection-regex = "(js|javascript)"
+# language-id = "javascript"
+# file-types = ["js", "mjs", "cjs", "jsx"]
+# comment-token = "//"
+# language-servers = ["typescript-language-server", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "typescript"
-scope = "source.ts"
-injection-regex = "(ts|typescript)"
-language-id = "typescript"
-file-types = ["ts", "mts", "cts", "tsx"]
-comment-token = "//"
-language-servers = ["typescript-language-server", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "typescript"
+# scope = "source.ts"
+# injection-regex = "(ts|typescript)"
+# language-id = "typescript"
+# file-types = ["ts", "mts", "cts", "tsx"]
+# comment-token = "//"
+# language-servers = ["typescript-language-server", "lsp-ai"]
+# auto-format = true
 
 [[language]]
 name = "tsx"
@@ -51,78 +51,78 @@ comment-token = "//"
 language-servers = ["typescript-language-server", "lsp-ai"]
 auto-format = true
 
-[[language]]
-name = "jsx"
-scope = "source.jsx"
-injection-regex = "jsx"
-language-id = "javascriptreact"
-file-types = ["jsx"]
-comment-token = "//"
-language-servers = ["typescript-language-server", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "jsx"
+# scope = "source.jsx"
+# injection-regex = "jsx"
+# language-id = "javascriptreact"
+# file-types = ["jsx"]
+# comment-token = "//"
+# language-servers = ["typescript-language-server", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "go"
-scope = "source.go"
-injection-regex = "go"
-file-types = ["go"]
-roots = ["go.work", "go.mod"]
-auto-format = true
-comment-token = "//"
-language-servers = ["gopls", "lsp-ai"]
+# [[language]]
+# name = "go"
+# scope = "source.go"
+# injection-regex = "go"
+# file-types = ["go"]
+# roots = ["go.work", "go.mod"]
+# auto-format = true
+# comment-token = "//"
+# language-servers = ["gopls", "lsp-ai"]
 
-[[language]]
-name = "c"
-scope = "source.c"
-injection-regex = "c"
-file-types = ["c"]
-comment-token = "//"
-language-servers = ["clangd", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "c"
+# scope = "source.c"
+# injection-regex = "c"
+# file-types = ["c"]
+# comment-token = "//"
+# language-servers = ["clangd", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "cpp"
-scope = "source.cpp"
-injection-regex = "(c|cpp)"
-file-types = ["cc", "hh", "c++", "cpp", "hpp", "h", "ipp", "tpp", "cxx", "hxx", "ixx", "txx", "ino", "C", "H", "cu", "cuh", "cppm", "h++", "ii", "inl", "ipp", "ixx", "hpp++"]
-comment-token = "//"
-language-servers = ["clangd", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "cpp"
+# scope = "source.cpp"
+# injection-regex = "(c|cpp)"
+# file-types = ["cc", "hh", "c++", "cpp", "hpp", "h", "ipp", "tpp", "cxx", "hxx", "ixx", "txx", "ino", "C", "H", "cu", "cuh", "cppm", "h++", "ii", "inl", "ipp", "ixx", "hpp++"]
+# comment-token = "//"
+# language-servers = ["clangd", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "markdown"
-scope = "source.md"
-injection-regex = "md|markdown"
-file-types = ["md", "markdown", "mkd", "mdwn", "mdown", "markdn", "mdtxt", "mdtext", "workbook"]
-comment-token = "<!--"
-language-servers = ["marksman", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "markdown"
+# scope = "source.md"
+# injection-regex = "md|markdown"
+# file-types = ["md", "markdown", "mkd", "mdwn", "mdown", "markdn", "mdtxt", "mdtext", "workbook"]
+# comment-token = "<!--"
+# language-servers = ["marksman", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "json"
-scope = "source.json"
-injection-regex = "json"
-file-types = ["json", "arb", "ipynb", "geojson", "gltf", "webmanifest"]
-language-servers = ["vscode-json-language-server", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "json"
+# scope = "source.json"
+# injection-regex = "json"
+# file-types = ["json", "arb", "ipynb", "geojson", "gltf", "webmanifest"]
+# language-servers = ["vscode-json-language-server", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "yaml"
-scope = "source.yaml"
-injection-regex = "yml|yaml"
-file-types = ["yml", "yaml"]
-comment-token = "#"
-language-servers = ["yaml-language-server", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "yaml"
+# scope = "source.yaml"
+# injection-regex = "yml|yaml"
+# file-types = ["yml", "yaml"]
+# comment-token = "#"
+# language-servers = ["yaml-language-server", "lsp-ai"]
+# auto-format = true
 
-[[language]]
-name = "toml"
-scope = "source.toml"
-injection-regex = "toml"
-file-types = ["toml", "poetry.lock", "Cargo.lock"]
-comment-token = "#"
-language-servers = ["taplo", "lsp-ai"]
-auto-format = true
+# [[language]]
+# name = "toml"
+# scope = "source.toml"
+# injection-regex = "toml"
+# file-types = ["toml", "poetry.lock", "Cargo.lock"]
+# comment-token = "#"
+# language-servers = ["taplo", "lsp-ai"]
+# auto-format = true
 
 [[language]]
 name = "bash"
@@ -139,47 +139,47 @@ auto-format = true
 command = "lsp-ai"
 args = []
 
-[language-server.ruff]
-command = "ruff"
-args = ["server", "--preview"]
+# [language-server.ruff]
+# command = "ruff"
+# args = ["server", "--preview"]
 
-[language-server.pylsp]
-command = "pylsp"
-config = {}
+# [language-server.pylsp]
+# command = "pylsp"
+# config = {}
 
-[language-server.rust-analyzer]
-command = "rust-analyzer"
-config = { checkOnSave = { command = "clippy" } }
+# [language-server.rust-analyzer]
+# command = "rust-analyzer"
+# config = { checkOnSave = { command = "clippy" } }
 
-[language-server.typescript-language-server]
-command = "typescript-language-server"
-args = ["--stdio"]
-config = { hostInfo = "helix" }
+# [language-server.typescript-language-server]
+# command = "typescript-language-server"
+# args = ["--stdio"]
+# config = { hostInfo = "helix" }
 
-[language-server.gopls]
-command = "gopls"
-config = { gofumpt = true }
+# [language-server.gopls]
+# command = "gopls"
+# config = { gofumpt = true }
 
-[language-server.clangd]
-command = "clangd"
-args = ["--background-index", "--clang-tidy", "--completion-style=bundled"]
+# [language-server.clangd]
+# command = "clangd"
+# args = ["--background-index", "--clang-tidy", "--completion-style=bundled"]
 
-[language-server.marksman]
-command = "marksman"
-args = ["server"]
+# [language-server.marksman]
+# command = "marksman"
+# args = ["server"]
 
-[language-server.vscode-json-language-server]
-command = "vscode-json-language-server"
-args = ["--stdio"]
+# [language-server.vscode-json-language-server]
+# command = "vscode-json-language-server"
+# args = ["--stdio"]
 
-[language-server.yaml-language-server]
-command = "yaml-language-server"
-args = ["--stdio"]
+# [language-server.yaml-language-server]
+# command = "yaml-language-server"
+# args = ["--stdio"]
 
-[language-server.taplo]
-command = "taplo"
-args = ["lsp", "stdio"]
+# [language-server.taplo]
+# command = "taplo"
+# args = ["lsp", "stdio"]
 
-[language-server.bash-language-server]
-command = "bash-language-server"
-args = ["start"] 
+# [language-server.bash-language-server]
+# command = "bash-language-server"
+# args = ["start"] 

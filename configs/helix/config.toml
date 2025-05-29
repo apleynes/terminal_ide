@@ -14,6 +14,9 @@ cursorline = true
 completion-replace = true
 auto-pairs = true
 
+[editor.soft-wrap]
+enable = true
+
 [editor.statusline]
 left = ["mode", "spinner", "file-name", "file-modification-indicator"]
 center = []
@@ -38,7 +41,7 @@ normal = "block"
 select = "underline"
 
 [editor.file-picker]
-hidden = false
+hidden = true
 follow-symlinks = true
 deduplicate-links = true
 parents = true
@@ -65,18 +68,18 @@ render = true
 character = "╎"
 skip-levels = 1
 
-[keys.normal]
-space = { f = "file_picker", b = "buffer_picker", "/" = "global_search", "?" = "command_palette" }
-";" = "command_mode"
-":" = "command_palette"
-g = { a = "code_action", d = "goto_definition", D = "goto_declaration", r = "goto_references", i = "goto_implementation", t = "goto_type_definition", h = "select_references_to_symbol_under_cursor" }
-"]" = { d = "goto_next_diag", D = "goto_last_diag", f = "goto_next_function", c = "goto_next_class", a = "goto_next_parameter", o = "goto_next_comment", t = "goto_next_test", p = "goto_next_paragraph" }
-"[" = { d = "goto_prev_diag", D = "goto_first_diag", f = "goto_prev_function", c = "goto_prev_class", a = "goto_prev_parameter", o = "goto_prev_comment", t = "goto_prev_test", p = "goto_prev_paragraph" }
-"=" = "format_selections"
+# [keys.normal]
+# space = { f = "file_picker", b = "buffer_picker", "/" = "global_search", "?" = "command_palette" }
+# ";" = "command_mode"
+# ":" = "command_palette"
+# g = { a = "code_action", d = "goto_definition", D = "goto_declaration", r = "goto_references", i = "goto_implementation", t = "goto_type_definition", h = "select_references_to_symbol_under_cursor" }
+# "]" = { d = "goto_next_diag", D = "goto_last_diag", f = "goto_next_function", c = "goto_next_class", a = "goto_next_parameter", o = "goto_next_comment", t = "goto_next_test", p = "goto_next_paragraph" }
+# "[" = { d = "goto_prev_diag", D = "goto_first_diag", f = "goto_prev_function", c = "goto_prev_class", a = "goto_prev_parameter", o = "goto_prev_comment", t = "goto_prev_test", p = "goto_prev_paragraph" }
+# "=" = "format_selections"
 
-[keys.insert]
-"C-space" = "completion"
-"C-r" = "insert_register"
+#[keys.insert]
+#"C-space" = "completion"
+#"C-r" = "insert_register"
 
-[keys.select]
-"=" = "format_selections" 
+#[keys.select]
+#"=" = "format_selections" 
