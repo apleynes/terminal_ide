@@ -128,10 +128,11 @@ setup_directories() {
     fi
 }
 
-# Download and extract tarball
+# Download and extract tarball with robust binary finding
 download_and_extract() {
     local url="$1"
     local extract_dir="$2"
+    local binary_name="$3"
     local temp_file="/tmp/$(basename "$url")"
     
     log_info "Downloading $url..."
@@ -145,15 +146,51 @@ download_and_extract() {
     fi
     
     mkdir -p "$extract_dir"
+    
+    # Extract archive
     if [[ "$url" == *.tar.gz ]] || [[ "$url" == *.tgz ]]; then
-        tar -xzf "$temp_file" -C "$extract_dir" --strip-components=1
+        tar -xzf "$temp_file" -C "$extract_dir"
     elif [[ "$url" == *.tar.xz ]]; then
-        tar -xJf "$temp_file" -C "$extract_dir" --strip-components=1
+        tar -xJf "$temp_file" -C "$extract_dir"
     elif [[ "$url" == *.zip ]]; then
         unzip -q "$temp_file" -d "$extract_dir"
+    else
+        log_error "Unsupported archive format: $url"
+        rm -f "$temp_file"
+        return 1
+    fi
+    
+    # Find the binary in the extracted files
+    local binary_path=""
+    
+    # Try exact name first
+    binary_path=$(find "$extract_dir" -name "$binary_name" -type f -executable 2>/dev/null | head -1)
+    
+    # If not found, try with wildcards
+    if [[ -z "$binary_path" ]]; then
+        binary_path=$(find "$extract_dir" -name "*${binary_name}*" -type f -executable 2>/dev/null | head -1)
+    fi
+    
+    # If still not found, try any executable file (for single-binary archives)
+    if [[ -z "$binary_path" ]]; then
+        binary_path=$(find "$extract_dir" -type f -executable 2>/dev/null | head -1)
+    fi
+    
+    if [[ -n "$binary_path" ]]; then
+        # Move binary to install directory with correct name
+        mv "$binary_path" "$INSTALL_DIR/$binary_name"
+        chmod +x "$INSTALL_DIR/$binary_name"
+        log_info "Binary installed: $INSTALL_DIR/$binary_name"
+    else
+        log_error "Could not find executable binary in archive"
+        log_info "Archive contents:"
+        find "$extract_dir" -type f | head -10
+        rm -f "$temp_file"
+        return 1
     fi
     
     rm -f "$temp_file"
+    rm -rf "$extract_dir"
 }
 
 # Install Rust if not present (needed for some tools)
@@ -263,10 +300,7 @@ install_zellij() {
         fi
         
         local temp_dir="/tmp/zellij-install"
-        download_and_extract "$url" "$temp_dir"
-        mv "$temp_dir/zellij" "$INSTALL_DIR/"
-        chmod +x "$INSTALL_DIR/zellij"
-        rm -rf "$temp_dir"
+        download_and_extract "$url" "$temp_dir" "zellij"
     fi
     
     log_success "Zellij installed"
@@ -971,4 +1005,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"
