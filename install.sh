@@ -128,6 +128,25 @@ setup_directories() {
     fi
 }
 
+# Get latest GitHub release version
+get_latest_github_release() {
+    local repo="$1"
+    local version=""
+    
+    if command_exists curl; then
+        version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -o '"tag_name": *"[^"]*"' | grep -o '[^"]*$' | sed 's/^v//')
+    elif command_exists wget; then
+        version=$(wget -qO- "https://api.github.com/repos/$repo/releases/latest" | grep -o '"tag_name": *"[^"]*"' | grep -o '[^"]*$' | sed 's/^v//')
+    fi
+    
+    if [[ -z "$version" ]]; then
+        log_error "Failed to get latest release version for $repo"
+        return 1
+    fi
+    
+    echo "$version"
+}
+
 # Download and extract tarball with robust binary finding
 download_and_extract() {
     local url="$1"
@@ -191,6 +210,27 @@ download_and_extract() {
     
     rm -f "$temp_file"
     rm -rf "$extract_dir"
+}
+
+# Download a direct binary file
+download_binary() {
+    local url="$1"
+    local binary_name="$2"
+    local temp_file="/tmp/$(basename "$url")"
+    
+    log_info "Downloading $url..."
+    if command_exists curl; then
+        curl -fsSL "$url" -o "$temp_file"
+    elif command_exists wget; then
+        wget -q "$url" -O "$temp_file"
+    else
+        log_error "Neither curl nor wget found. Please install one of them."
+        return 1
+    fi
+    
+    mv "$temp_file" "$INSTALL_DIR/$binary_name"
+    chmod +x "$INSTALL_DIR/$binary_name"
+    log_info "Binary installed: $INSTALL_DIR/$binary_name"
 }
 
 # Install Rust if not present (needed for some tools)
@@ -268,12 +308,51 @@ install_helix() {
     if [[ "$(detect_os)" == "macos" ]] && command_exists brew; then
         brew install helix
     else
-        # Install from source using cargo
-        if ! command_exists cargo; then
-            install_rust
+        local os="$(detect_os)"
+        local arch="$(detect_arch)"
+        local version
+        
+        # Try to get the latest version
+        version=$(get_latest_github_release "helix-editor/helix")
+        if [[ -z "$version" ]]; then
+            version="23.10"  # Fallback to known version
         fi
-        cargo install --locked helix-term --rename helix
-        ln -sf "$HOME/.cargo/bin/helix" "$INSTALL_DIR/hx"
+        
+        local url=""
+        if [[ "$os" == "linux" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/helix-editor/helix/releases/download/${version}/helix-${version}-x86_64-linux.tar.xz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/helix-editor/helix/releases/download/${version}/helix-${version}-aarch64-linux.tar.xz"
+            fi
+        elif [[ "$os" == "macos" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/helix-editor/helix/releases/download/${version}/helix-${version}-x86_64-macos.tar.xz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/helix-editor/helix/releases/download/${version}/helix-${version}-aarch64-macos.tar.xz"
+            fi
+        fi
+        
+        if [[ -n "$url" ]]; then
+            local temp_dir="/tmp/helix-install"
+            download_and_extract "$url" "$temp_dir" "hx"
+            
+            # Copy runtime files if they exist
+            local runtime_dir="$temp_dir/helix-${version}/runtime"
+            if [[ -d "$runtime_dir" ]]; then
+                mkdir -p "$CONFIG_DIR/helix/runtime"
+                cp -r "$runtime_dir"/* "$CONFIG_DIR/helix/runtime/"
+                log_info "Helix runtime files installed to $CONFIG_DIR/helix/runtime/"
+            fi
+        else
+            log_warn "No prebuilt binary available for your system. Falling back to cargo install."
+            # Install from source using cargo
+            if ! command_exists cargo; then
+                install_rust
+            fi
+            cargo install --locked helix-term --rename helix
+            ln -sf "$HOME/.cargo/bin/helix" "$INSTALL_DIR/hx"
+        fi
     fi
     
     log_success "Helix installed"
@@ -293,10 +372,39 @@ install_zellij() {
     else
         local os="$(detect_os)"
         local arch="$(detect_arch)"
-        local url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-${arch}-unknown-${os}-musl.tar.gz"
+        local version
         
-        if [[ "$os" == "macos" ]]; then
-            url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-${arch}-apple-darwin.tar.gz"
+        # Try to get the latest version
+        version=$(get_latest_github_release "zellij-org/zellij")
+        if [[ -z "$version" ]]; then
+            # Use GitHub API to get latest release URL directly
+            if [[ "$os" == "linux" ]]; then
+                if [[ "$arch" == "x86_64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+                elif [[ "$arch" == "aarch64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-aarch64-unknown-linux-musl.tar.gz"
+                fi
+            elif [[ "$os" == "macos" ]]; then
+                if [[ "$arch" == "x86_64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-apple-darwin.tar.gz"
+                elif [[ "$arch" == "aarch64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-aarch64-apple-darwin.tar.gz"
+                fi
+            fi
+        else
+            if [[ "$os" == "linux" ]]; then
+                if [[ "$arch" == "x86_64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/download/v${version}/zellij-x86_64-unknown-linux-musl.tar.gz"
+                elif [[ "$arch" == "aarch64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/download/v${version}/zellij-aarch64-unknown-linux-musl.tar.gz"
+                fi
+            elif [[ "$os" == "macos" ]]; then
+                if [[ "$arch" == "x86_64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/download/v${version}/zellij-x86_64-apple-darwin.tar.gz"
+                elif [[ "$arch" == "aarch64" ]]; then
+                    url="https://github.com/zellij-org/zellij/releases/download/v${version}/zellij-aarch64-apple-darwin.tar.gz"
+                fi
+            fi
         fi
         
         local temp_dir="/tmp/zellij-install"
@@ -315,12 +423,48 @@ install_lsp_ai() {
     
     log_info "Installing LSP-AI..."
     
-    if ! command_exists cargo; then
-        install_rust
-    fi
+    local os="$(detect_os)"
+    local arch="$(detect_arch)"
+    local version
     
-    cargo install --locked lsp-ai
-    ln -sf "$HOME/.cargo/bin/lsp-ai" "$INSTALL_DIR/"
+    # Try to get the latest version
+    version=$(get_latest_github_release "afnanenayet/lsp-ai")
+    if [[ -z "$version" ]]; then
+        log_warn "Could not determine latest LSP-AI version. Falling back to cargo install."
+        if ! command_exists cargo; then
+            install_rust
+        fi
+        
+        cargo install --locked lsp-ai
+        ln -sf "$HOME/.cargo/bin/lsp-ai" "$INSTALL_DIR/"
+    else
+        local url=""
+        if [[ "$os" == "linux" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/afnanenayet/lsp-ai/releases/download/v${version}/lsp-ai-x86_64-unknown-linux-gnu.tar.gz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/afnanenayet/lsp-ai/releases/download/v${version}/lsp-ai-aarch64-unknown-linux-gnu.tar.gz"
+            fi
+        elif [[ "$os" == "macos" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/afnanenayet/lsp-ai/releases/download/v${version}/lsp-ai-x86_64-apple-darwin.tar.gz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/afnanenayet/lsp-ai/releases/download/v${version}/lsp-ai-aarch64-apple-darwin.tar.gz"
+            fi
+        fi
+        
+        if [[ -n "$url" ]]; then
+            local temp_dir="/tmp/lsp-ai-install"
+            download_and_extract "$url" "$temp_dir" "lsp-ai"
+        else
+            log_warn "No prebuilt binary available for your system. Falling back to cargo install."
+            if ! command_exists cargo; then
+                install_rust
+            fi
+            cargo install --locked lsp-ai
+            ln -sf "$HOME/.cargo/bin/lsp-ai" "$INSTALL_DIR/"
+        fi
+    fi
     
     log_success "LSP-AI installed"
 }
@@ -337,11 +481,42 @@ install_gitui() {
     if [[ "$(detect_os)" == "macos" ]] && command_exists brew; then
         brew install gitui
     else
-        if ! command_exists cargo; then
-            install_rust
+        local os="$(detect_os)"
+        local arch="$(detect_arch)"
+        local version
+        
+        # Try to get the latest version
+        version=$(get_latest_github_release "gitui-org/gitui")
+        if [[ -z "$version" ]]; then
+            version="0.27.0"  # Fallback to known version
         fi
-        cargo install gitui
-        ln -sf "$HOME/.cargo/bin/gitui" "$INSTALL_DIR/"
+        
+        local url=""
+        if [[ "$os" == "linux" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/gitui-org/gitui/releases/download/v${version}/gitui-linux-x86_64.tar.gz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/gitui-org/gitui/releases/download/v${version}/gitui-linux-aarch64.tar.gz"
+            fi
+        elif [[ "$os" == "macos" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/gitui-org/gitui/releases/download/v${version}/gitui-mac-x86_64.tar.gz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/gitui-org/gitui/releases/download/v${version}/gitui-mac-aarch64.tar.gz"
+            fi
+        fi
+        
+        if [[ -n "$url" ]]; then
+            local temp_dir="/tmp/gitui-install"
+            download_and_extract "$url" "$temp_dir" "gitui"
+        else
+            log_warn "No prebuilt binary available for your system. Falling back to cargo install."
+            if ! command_exists cargo; then
+                install_rust
+            fi
+            cargo install gitui
+            ln -sf "$HOME/.cargo/bin/gitui" "$INSTALL_DIR/"
+        fi
     fi
     
     log_success "GitUI installed"
@@ -359,11 +534,42 @@ install_ruff() {
     if [[ "$(detect_os)" == "macos" ]] && command_exists brew; then
         brew install ruff
     else
-        if ! command_exists cargo; then
-            install_rust
+        local os="$(detect_os)"
+        local arch="$(detect_arch)"
+        local version
+        
+        # Try to get the latest version
+        version=$(get_latest_github_release "astral-sh/ruff")
+        if [[ -z "$version" ]]; then
+            version="0.3.0"  # Fallback to known version
         fi
-        cargo install ruff
-        ln -sf "$HOME/.cargo/bin/ruff" "$INSTALL_DIR/"
+        
+        local url=""
+        if [[ "$os" == "linux" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-x86_64-unknown-linux-gnu.tar.gz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-aarch64-unknown-linux-gnu.tar.gz"
+            fi
+        elif [[ "$os" == "macos" ]]; then
+            if [[ "$arch" == "x86_64" ]]; then
+                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-x86_64-apple-darwin.tar.gz"
+            elif [[ "$arch" == "aarch64" ]]; then
+                url="https://github.com/astral-sh/ruff/releases/download/v${version}/ruff-${version}-aarch64-apple-darwin.tar.gz"
+            fi
+        fi
+        
+        if [[ -n "$url" ]]; then
+            local temp_dir="/tmp/ruff-install"
+            download_and_extract "$url" "$temp_dir" "ruff"
+        else
+            log_warn "No prebuilt binary available for your system. Falling back to cargo install."
+            if ! command_exists cargo; then
+                install_rust
+            fi
+            cargo install ruff
+            ln -sf "$HOME/.cargo/bin/ruff" "$INSTALL_DIR/"
+        fi
     fi
     
     log_success "Ruff installed"
@@ -402,44 +608,237 @@ install_modern_tools() {
                     ;;
             esac
         else
-            # Install from cargo for Linux
-            if ! command_exists cargo; then
-                install_rust
-            fi
+            local os="$(detect_os)"
+            local arch="$(detect_arch)"
+            local version=""
+            local url=""
+            local temp_dir="/tmp/${tool}-install"
+            local binary_name="$tool"
+            local use_cargo=false
             
             case "$tool" in
                 "btop")
-                    cargo install btop
+                    version=$(get_latest_github_release "aristocratos/btop")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/aristocratos/btop/releases/download/v${version}/btop-x86_64-linux-musl.tbz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/aristocratos/btop/releases/download/v${version}/btop-aarch64-linux-musl.tbz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            url="https://github.com/aristocratos/btop/releases/download/v${version}/btop-macos-universal.tbz"
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "yazi")
-                    cargo install --locked yazi-fm yazi-cli
+                    version=$(get_latest_github_release "sxyazi/yazi")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-x86_64-unknown-linux-gnu.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sxyazi/yazi/releases/download/v${version}/yazi-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "ripgrep")
-                    cargo install ripgrep
+                    version=$(get_latest_github_release "BurntSushi/ripgrep")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-aarch64-unknown-linux-musl.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                        binary_name="rg"
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "bat")
-                    cargo install bat
+                    version=$(get_latest_github_release "sharkdp/bat")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sharkdp/bat/releases/download/v${version}/bat-v${version}-x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sharkdp/bat/releases/download/v${version}/bat-v${version}-aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sharkdp/bat/releases/download/v${version}/bat-v${version}-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sharkdp/bat/releases/download/v${version}/bat-v${version}-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "hyperfine")
-                    cargo install hyperfine
+                    version=$(get_latest_github_release "sharkdp/hyperfine")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sharkdp/hyperfine/releases/download/v${version}/hyperfine-v${version}-x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sharkdp/hyperfine/releases/download/v${version}/hyperfine-v${version}-aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sharkdp/hyperfine/releases/download/v${version}/hyperfine-v${version}-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sharkdp/hyperfine/releases/download/v${version}/hyperfine-v${version}-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "delta")
-                    cargo install git-delta
+                    version=$(get_latest_github_release "dandavison/delta")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/dandavison/delta/releases/download/${version}/delta-${version}-x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/dandavison/delta/releases/download/${version}/delta-${version}-aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/dandavison/delta/releases/download/${version}/delta-${version}-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/dandavison/delta/releases/download/${version}/delta-${version}-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "fd")
-                    cargo install fd-find
+                    version=$(get_latest_github_release "sharkdp/fd")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sharkdp/fd/releases/download/v${version}/fd-v${version}-x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sharkdp/fd/releases/download/v${version}/fd-v${version}-aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/sharkdp/fd/releases/download/v${version}/fd-v${version}-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/sharkdp/fd/releases/download/v${version}/fd-v${version}-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "eza")
-                    cargo install eza
+                    version=$(get_latest_github_release "eza-community/eza")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/eza-community/eza/releases/download/v${version}/eza_x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/eza-community/eza/releases/download/v${version}/eza_aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/eza-community/eza/releases/download/v${version}/eza_x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/eza-community/eza/releases/download/v${version}/eza_aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
                 "dust")
-                    cargo install du-dust
+                    version=$(get_latest_github_release "bootandy/dust")
+                    if [[ -n "$version" ]]; then
+                        if [[ "$os" == "linux" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/bootandy/dust/releases/download/v${version}/dust-v${version}-x86_64-unknown-linux-musl.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/bootandy/dust/releases/download/v${version}/dust-v${version}-aarch64-unknown-linux-gnu.tar.gz"
+                            fi
+                        elif [[ "$os" == "macos" ]]; then
+                            if [[ "$arch" == "x86_64" ]]; then
+                                url="https://github.com/bootandy/dust/releases/download/v${version}/dust-v${version}-x86_64-apple-darwin.tar.gz"
+                            elif [[ "$arch" == "aarch64" ]]; then
+                                url="https://github.com/bootandy/dust/releases/download/v${version}/dust-v${version}-aarch64-apple-darwin.tar.gz"
+                            fi
+                        fi
+                    else
+                        use_cargo=true
+                    fi
                     ;;
             esac
             
-            # Create symlinks in install dir
-            if [[ -f "$HOME/.cargo/bin/$tool" ]]; then
-                ln -sf "$HOME/.cargo/bin/$tool" "$INSTALL_DIR/"
+            if [[ -n "$url" ]] && [[ "$use_cargo" == "false" ]]; then
+                download_and_extract "$url" "$temp_dir" "$binary_name"
+            else
+                log_warn "No prebuilt binary available for $tool. Falling back to cargo install."
+                # Install from cargo for Linux
+                if ! command_exists cargo; then
+                    install_rust
+                fi
+                
+                case "$tool" in
+                    "btop")
+                        cargo install btop
+                        ;;
+                    "yazi")
+                        cargo install --locked yazi-fm yazi-cli
+                        ;;
+                    "ripgrep")
+                        cargo install ripgrep
+                        ;;
+                    "bat")
+                        cargo install bat
+                        ;;
+                    "hyperfine")
+                        cargo install hyperfine
+                        ;;
+                    "delta")
+                        cargo install git-delta
+                        ;;
+                    "fd")
+                        cargo install fd-find
+                        ;;
+                    "eza")
+                        cargo install eza
+                        ;;
+                    "dust")
+                        cargo install du-dust
+                        ;;
+                esac
+                
+                # Create symlinks in install dir
+                if [[ -f "$HOME/.cargo/bin/$tool" ]]; then
+                    ln -sf "$HOME/.cargo/bin/$tool" "$INSTALL_DIR/"
+                fi
             fi
         fi
         
