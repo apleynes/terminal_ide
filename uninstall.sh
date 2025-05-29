@@ -411,6 +411,7 @@ verify_removal() {
             "nushell") binary_names=("nu") ;;
             "yazi") binary_names=("yazi" "ya") ;;
             "ripgrep") binary_names=("rg") ;;
+            "aider") binary_names=("aider") ;;
         esac
         
         for binary in "${binary_names[@]}"; do
