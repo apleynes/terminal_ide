@@ -19,7 +19,7 @@ CONFIG_DIR="$HOME/.config"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Default tools to install
-DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,nushell,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship"
+DEFAULT_TOOLS="helix,zellij,lsp-ai,gitui,ruff,btop,yazi,fish,nushell,ripgrep,bat,hyperfine,delta,fd,eza,dust,starship,aider"
 
 # Parse command line arguments
 TOOLS="$DEFAULT_TOOLS"
@@ -524,6 +524,36 @@ install_starship() {
     log_success "Starship installed"
 }
 
+# Install Aider AI chat
+install_aider() {
+    if [[ "$TOOLS" != *"aider"* ]]; then
+        return 0
+    fi
+    
+    if command_exists aider && [[ "$FORCE_INSTALL" == "false" ]]; then
+        log_info "Aider AI chat already installed"
+        return 0
+    fi
+    
+    log_info "Installing Aider AI chat..."
+    
+    if command_exists curl; then
+        curl -LsSf https://aider.chat/install.sh | sh
+    elif command_exists wget; then
+        wget -qO- https://aider.chat/install.sh | sh
+    else
+        log_error "Neither curl nor wget found. Cannot install Aider."
+        return 1
+    fi
+    
+    # Create symlink if needed
+    if [[ -f "$HOME/.local/bin/aider" ]]; then
+        ln -sf "$HOME/.local/bin/aider" "$INSTALL_DIR/"
+    fi
+    
+    log_success "Aider AI chat installed"
+}
+
 # Setup configurations
 setup_configurations() {
     if [[ "$SKIP_CONFIG" == "true" ]]; then
@@ -987,6 +1017,9 @@ main() {
                 ;;
             "starship")
                 install_starship
+                ;;
+            "aider")
+                install_aider
                 ;;
             "btop"|"yazi"|"ripgrep"|"bat"|"hyperfine"|"delta"|"fd"|"eza"|"dust")
                 # These are handled by install_modern_tools
