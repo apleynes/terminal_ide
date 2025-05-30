@@ -1,4 +1,4 @@
-theme = "onedark"
+theme = "ao"
 
 [editor]
 line-number = "relative"
@@ -51,17 +51,17 @@ git-global = true
 git-exclude = true
 max-depth = 25
 
-[editor.auto-save]
-focus-lost = true
-after-delay.enable = true
-after-delay.timeout = 3000
+# [editor.auto-save]
+# focus-lost = true
+# after-delay.enable = true
+# after-delay.timeout = 3000
 
-[editor.search]
-smart-case = true
-wrap-around = true
+# [editor.search]
+# smart-case = true
+# wrap-around = true
 
-[editor.whitespace]
-render = "selection"
+# [editor.whitespace]
+# render = "selection"
 
 [editor.indent-guides]
 render = true

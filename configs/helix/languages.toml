@@ -5,7 +5,7 @@ name = "python"
 # scope = "source.python"
 # injection-regex = "python"
 # file-types = ["py", "pyi", "py3", "pyw", "ptl", "rpy", "cpy", "ipy", "pyt", "pyx", "pxd", "pxi"]
-# comment-token = "#"
+# # comment-token = "#"
 language-servers = ["ruff", "pylsp", "lsp-ai"]
 auto-format = true
 formatter = { command = "ruff", args = ["format", "--stdin-filename", "file.py", "-"] }
@@ -16,7 +16,7 @@ name = "rust"
 # injection-regex = "rust"
 file-types = ["rs"]
 # roots = ["Cargo.toml", "Cargo.lock"]
-comment-token = "//"
+# comment-token = "//"
 language-servers = ["rust-analyzer", "lsp-ai"]
 auto-format = true
 formatter = { command = "rustfmt" } #, args = ["--edition", "2021"] }
@@ -27,7 +27,7 @@ formatter = { command = "rustfmt" } #, args = ["--edition", "2021"] }
 # injection-regex = "(js|javascript)"
 # language-id = "javascript"
 # file-types = ["js", "mjs", "cjs", "jsx"]
-# comment-token = "//"
+# # comment-token = "//"
 # language-servers = ["typescript-language-server", "lsp-ai"]
 # auto-format = true
 
@@ -37,7 +37,7 @@ formatter = { command = "rustfmt" } #, args = ["--edition", "2021"] }
 # injection-regex = "(ts|typescript)"
 # language-id = "typescript"
 # file-types = ["ts", "mts", "cts", "tsx"]
-# comment-token = "//"
+# # comment-token = "//"
 # language-servers = ["typescript-language-server", "lsp-ai"]
 # auto-format = true
 
@@ -47,7 +47,7 @@ scope = "source.tsx"
 injection-regex = "(tsx)"
 language-id = "typescriptreact"
 file-types = ["tsx"]
-comment-token = "//"
+# comment-token = "//"
 language-servers = ["typescript-language-server", "lsp-ai"]
 auto-format = true
 
@@ -57,7 +57,7 @@ auto-format = true
 # injection-regex = "jsx"
 # language-id = "javascriptreact"
 # file-types = ["jsx"]
-# comment-token = "//"
+# # comment-token = "//"
 # language-servers = ["typescript-language-server", "lsp-ai"]
 # auto-format = true
 
@@ -68,7 +68,7 @@ auto-format = true
 # file-types = ["go"]
 # roots = ["go.work", "go.mod"]
 # auto-format = true
-# comment-token = "//"
+# # comment-token = "//"
 # language-servers = ["gopls", "lsp-ai"]
 
 # [[language]]
@@ -76,7 +76,7 @@ auto-format = true
 # scope = "source.c"
 # injection-regex = "c"
 # file-types = ["c"]
-# comment-token = "//"
+# # comment-token = "//"
 # language-servers = ["clangd", "lsp-ai"]
 # auto-format = true
 
@@ -85,7 +85,7 @@ auto-format = true
 # scope = "source.cpp"
 # injection-regex = "(c|cpp)"
 # file-types = ["cc", "hh", "c++", "cpp", "hpp", "h", "ipp", "tpp", "cxx", "hxx", "ixx", "txx", "ino", "C", "H", "cu", "cuh", "cppm", "h++", "ii", "inl", "ipp", "ixx", "hpp++"]
-# comment-token = "//"
+# # comment-token = "//"
 # language-servers = ["clangd", "lsp-ai"]
 # auto-format = true
 
@@ -94,7 +94,7 @@ auto-format = true
 # scope = "source.md"
 # injection-regex = "md|markdown"
 # file-types = ["md", "markdown", "mkd", "mdwn", "mdown", "markdn", "mdtxt", "mdtext", "workbook"]
-# comment-token = "<!--"
+# # comment-token = "<!--"
 # language-servers = ["marksman", "lsp-ai"]
 # auto-format = true
 
@@ -111,7 +111,7 @@ auto-format = true
 # scope = "source.yaml"
 # injection-regex = "yml|yaml"
 # file-types = ["yml", "yaml"]
-# comment-token = "#"
+# # comment-token = "#"
 # language-servers = ["yaml-language-server", "lsp-ai"]
 # auto-format = true
 
@@ -120,7 +120,7 @@ auto-format = true
 # scope = "source.toml"
 # injection-regex = "toml"
 # file-types = ["toml", "poetry.lock", "Cargo.lock"]
-# comment-token = "#"
+# # comment-token = "#"
 # language-servers = ["taplo", "lsp-ai"]
 # auto-format = true
 
@@ -129,7 +129,7 @@ name = "bash"
 scope = "source.bash"
 injection-regex = "(shell|bash|zsh|sh)"
 file-types = ["sh", "bash", "zsh", ".bashrc", ".bash_profile", ".bash_login", ".bash_logout", ".profile", ".zshrc", ".zprofile", ".zshenv", ".zlogin", ".zlogout"]
-comment-token = "#"
+# comment-token = "#"
 language-servers = ["bash-language-server", "lsp-ai"]
 auto-format = true
 
